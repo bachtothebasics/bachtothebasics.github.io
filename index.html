@@ -5,8 +5,577 @@ Purpose: Music video game to teach kids how to read music -->
 
 <!DOCTYPE html>
 <html>
-<title></title>
+<head> 
+<title> Bach to the Basics </title>
+<link rel="stylesheet" href="pictureofus.css">
+<script src="processing.js"></script>
+<script src="buzz.js" type="text/javascript"></script>
+<script type="text/processing" data-processing-target="mycanvas">
+
+
+// Essential to display any image //
+/* @pjs preload="http://s27.postimg.org/soaggmvfn/c_copy.png, http://s23.postimg.org/8oe7pk9wb/d_copy.png, http://s12.postimg.org/xt6p0csjx/image.png, http://s18.postimg.org/6a0991rjt/image.png, http://s15.postimg.org/z18spbfbv/image.png, http://s17.postimg.org/p8favepen/image.png"; */
+
+// Home //
+/* @pjs preload="http://s13.postimg.org/twhqvfb9z/Bach_To_The_Basics_Home2.png"; */
+
+// Problem //
+/* @pjs preload="http://s7.postimg.org/whsq6pgsr/Purpose1_BTTB.png"; */
+
+// Solution //
+/*@pjs preload="http://s7.postimg.org/u1qwsuyq3/Purpose_BTTB.png"; */
+
+// Music info //
+/* @pjs preload="http://s4.postimg.org/w141p9gm5/Final_Music_Staff_Pg1.png"; */
+
+// Music staff //
+/* @pjs preload="http://s4.postimg.org/lfk6d9aal/Awesome_Music_Staff.png"; */
+
+// Instructions //
+/* @pjs preload="http://s10.postimg.org/nacgivgi1/Instructions_BTTB.png";*/
+
+// Game //
+/* @pjs preload="http://s22.postimg.org/x6f4wi1st/man0.png");
+http://s22.postimg.org/dr4d3e8il/man1.png,
+http://s22.postimg.org/gjxknf8v1/man2.png,
+http://s22.postimg.org/yk6rrt125/man3.png,
+http://s22.postimg.org/qjsh3bk4d/man4.png";*/
+
+// Pause //
+/* @pjs preload="http://s10.postimg.org/f8o80yxqh/New_PAUSED2.png"; */
+
+// Game over //
+/* @pjs preload="http://s8.postimg.org/wxjg5pm3p/scorebttb.png"; */
+
+
+// Siberia //
+/* @pjs preload="http://s7.postimg.org/9yupww6kr/siberia.jpg"; */
+PImage siberia = loadImage("http://s7.postimg.org/9yupww6kr/siberia.jpg");
+
+//load all images and set variables for jumping man
+PImage man0 = loadImage("http://s22.postimg.org/x6f4wi1st/man0.png");
+PImage man1 = loadImage("http://s22.postimg.org/dr4d3e8il/man1.png");
+PImage man2 = loadImage("http://s22.postimg.org/gjxknf8v1/man2.png");
+PImage man3 = loadImage("http://s22.postimg.org/yk6rrt125/man3.png");
+PImage man4 = loadImage("http://s22.postimg.org/qjsh3bk4d/man4.png");
+/* @pjs globalKeyEvents="true"; */
+
+//global variables for moving notes
+int noteCounter = 1;
+int instanceArray = new Array();
+int displaySong = new Array();
+
+//global variables for jumping man
+int frameRate=30;
+int  gravity = 1;
+int yVel = 0;
+int frameZero =0;
+int man =3;
+
+void setup() {
+  size(800, 600);
+  state = new GameState(0);
+  Twinkle = new Song(100, 100, 5, twinkle);
+  player=new Player(150, 200);
+  setInterval (player.jump, 1000.0/frameRate);
+
+}
+
+void draw() {
+  state.show();
+  player.drawMan();
+  image(siberia, 400, 600);
+
+}
+
+void keyPressed() {
+
+  // if space bar pressed //
+  if (keyCode == 32) {
+    
+    // home to problem //
+    if (state.page == 0) {
+      state.page = 1;
+    } 
+    // game over to game (restart) //
+    else if (state.page == 7) {
+       restart();
+    }
+  }
+  
+  //if right key pressed
+  if (keyCode == RIGHT) {
+    
+    // problem to solution //
+    if (state.page == 1) {
+      state.page = 2;
+    } 
+    
+    // solution to music info //
+    else if (state.page == 2) {
+      state.page = 3;
+    } 
+    
+    // music info to music staff //
+    else if (state.page==3) {
+      state.page=4;
+    } 
+    
+    // music staff to instructions //
+    else if (state.page==4) {
+      state.page=5;
+    }
+     // instructions to game //
+    else if (state.page == 5) {
+      state.page= 6;
+      
+    } 
+  }
+  //if left key pressed
+  if (keyCode == LEFT) {
+    
+    //instructions to music staff
+    if (state.page ==5) {
+      state.page= 4;
+      
+      //music staff to music info
+    } else if (state.page==4) {
+      state.page= 3;
+      
+      //music info to purpose 2
+    } else if (state.page==3) {
+      state.page=2;
+      
+      //purpose 2 to purpose 1
+    } else if (state.page==2) {
+      state.page=1;
+    }
+  }
+  
+  //if shift key is pressed
+  if (keyCode == 80) {
+    
+    //game to pause screen
+    if (state.page ==6) {
+      state.page=8;
+      
+      //pause screen to game
+    } else if (state.page ==8) {
+      state.page=6;
+    }
+  }
+  
+  if (keyCode == UP){
+    yVel= -11;
+    player.jump();
+}
+ 
+ //falling code  
+ if (keyCode == DOWN){
+    yVel= 11;
+    player.jump();
+}
+}
+
+void restart(){
+  displaySong= new Array();
+  instanceArray= new Array();
+  noteCounter=1;               
+  state.page=6;
+  Twinkle = new Song(100, 100, 5, twinkle);
+  score=0;
+}
+class GameState {
+
+  int page;
+  PImage homeImage;
+  PImage problemImage;
+  PImage solutionImage;
+  PImage musicInfoImage;
+  PImage musicStaffImage;
+  PImage instructionsImage;
+  PImage gameImage;
+  PImage gameOverImage;
+
+  // write image in preload //
+  GameState(int p) {
+    page = p;
+    homeImage = loadImage("http://s13.postimg.org/twhqvfb9z/Bach_To_The_Basics_Home2.png");
+    problemImage = loadImage("http://s7.postimg.org/whsq6pgsr/Purpose1_BTTB.png");
+    solutionImage = loadImage("http://s7.postimg.org/u1qwsuyq3/Purpose_BTTB.png");
+    musicInfoImage = loadImage("http://s4.postimg.org/w141p9gm5/Final_Music_Staff_Pg1.png");
+    musicStaffImage = loadImage("http://s4.postimg.org/lfk6d9aal/Awesome_Music_Staff.png");
+    instructionsImage = loadImage("http://s10.postimg.org/nacgivgi1/Instructions_BTTB.png");
+    gameImage = loadImage("http://s7.postimg.org/kmsgvp1mz/stage.png");
+    gameOverImage = loadImage("http://s8.postimg.org/wxjg5pm3p/scorebttb.png");
+    pauseImage=loadImage("http://s10.postimg.org/f8o80yxqh/New_PAUSED2.png");
+  }
+
+  void show() {
+
+    if (page == 0) {
+      home();
+    } else if (page == 1) {
+      problem();
+    } else if (page == 2) {
+      solution();
+    } else if (page == 3) {
+      musicInfo();
+    } else if (page == 4) {
+      musicStaff();
+    } else if (page == 5) {
+      instructions();
+    } else if (page == 6) {
+      game();
+    } else if (page == 7) {
+      gameOver();
+    }
+    else if(page == 8) {
+        pause();
+  }
+  }
+
+  void home() {
+    image(homeImage, 0, 0);
+  }
+
+  void problem() {
+    image(problemImage, 0, 0);
+  }
+
+  void solution() {
+    image(solutionImage, 0, 0);
+  }
+
+  void musicInfo() {
+    image(musicInfoImage, 0, 0);
+  }
+
+  void musicStaff() {
+    image(musicStaffImage, 0, 0);
+  }
+
+  void instructions() {
+    image(instructionsImage, 0, 0);
+  }
+
+  void game() {
+    image(gameImage, 0, 0); 
+    Twinkle.displayNotes();
+    Twinkle.moveNotes();
+    player.drawMan();
+   //
+    
+  }
+
+  void gameOver() {
+    image(gameOverImage, 0, 0);
+    textSize(60);
+    fill(0,0,0);
+    font=createFont("Helvetica", 60);
+    textFont(font);
+    text(score, 360, 350);
+    
+  }
+  
+  void pause(){
+  image(pauseImage, 0, 0);
+  
+}
+}
+
+
+// Hard-coded list of notes for twinkle //
+String twinkle = new Array("c", "c", "g", "g", "a", "a", "g", "g", "f", "f", "e", "e", "d", "d", "c", "c", "g", "g", "f", "f", "e", "e", "d", "d", "g", "g", "f", "f", "e", "e", "d", "d", "c", "c", "g", "g", "a", "a", "g", "g", "f", "f", "e", "e", "d", "d", "c");
+
+// Loads images for every note //
+PImage c = loadImage("http://s27.postimg.org/soaggmvfn/c_copy.png");
+PImage d = loadImage("http://s23.postimg.org/8oe7pk9wb/d_copy.png");
+PImage e = loadImage("http://s15.postimg.org/z18spbfbv/image.png");
+PImage f = loadImage("http://s17.postimg.org/p8favepen/image.png");
+PImage g = loadImage("http://s12.postimg.org/xt6p0csjx/image.png");
+PImage a = loadImage("http://s18.postimg.org/6a0991rjt/image.png");
+
+//load Sound
+var musicNoteC = new buzz.sound("cNote.mp3");
+var musicNoteG = new buzz.sound("gNote.mp3");
+var musicNoteF = new buzz.sound("fNote.mp3");
+var musicNoteE = new buzz.sound("eNote.mp3");
+var musicNoteD = new buzz.sound("dNote.mp3");
+var musicNoteA = new buzz.sound("aNote.mp3");
+
+//int noteCounter = 1;
+
+// Class creates a music note; takes in position and name of image //
+class MusicNote {
+
+  int xPos;
+  int yPos;
+  int imageWidth=150;
+  int imageHeight=200;
+  PImage letter;
+  var sound;
+
+  MusicNote(int x, int y, PImage noteName, var noteSound ) {
+    xPos = x;
+    yPos = y;
+    letter = noteName;
+   sound = noteSound;
+    
+  }
+
+  // Draws the image //
+  void drawNote() {
+    noStroke();
+    image(letter, xPos, yPos, imageWidth, imageHeight);
+  }
+
+  // Called later to move image //
+  void move(int speed) {
+    xPos -= speed;
+  }
+
+  int getXNote() {
+    return xPos;
+  }
+  
+}
+
+
+int score=0;
+
+// Class displays and moves all notes across the staff //
+class Song {
+  int scrollerW;
+  int scrollerH;
+  int tempo;
+  int letterArray;
+//  int instanceArray = new Array();
+//  int displaySong = new Array();
+  int xPos=700;
+
+  Song(int w, int h, int rate, String song) {
+    scrollerW = w;
+    scrollerH = h;
+    tempo = rate;
+    letterArray = song;
+
+    for (int i=0; i<letterArray.length; i++) {
+
+      // Determines image and location based on note name
+      if (letterArray[i]=="c") { 
+        instanceArray.push(new MusicNote(xPos, 220, c, musicNoteC));
+      } else if (letterArray[i]=="d") {
+        instanceArray.push(new MusicNote(xPos, 200, d, musicNoteD));
+      } else if (letterArray[i]=="e") {
+        instanceArray.push(new MusicNote(xPos, 190, e, musicNoteE));
+      } else if (letterArray[i]=="f") {
+        instanceArray.push(new MusicNote(xPos, 175, f, musicNoteF));
+      } else if (letterArray[i]=="g") {
+        instanceArray.push(new MusicNote(xPos, 165, g, musicNoteG));
+      } else if (letterArray[i]=="a") {
+        instanceArray.push(new MusicNote(xPos, 150, a, musicNoteA));
+      }
+    }
+
+    //intialize displaySong 
+    displaySong.push(instanceArray[0]);
+  }
+
+  // Draws the notes in the displaySong list
+  void displayNotes() {  
+   
+    for (int i=0; i<displaySong.length; i++) {
+   
+      displaySong[i].drawNote();
+      
+    
+  }
+  }
+
+
+  // Adds the first note from the song; shows the notes currently in the list; moves the notes
+  void moveNotes() {
+    
+    //moves notes in displaySong list
+    for (int i=0; i<displaySong.length; i++) {
+        displaySong[i].move(tempo);
+        //if(displaySong[i].xPos<=800){
+            Twinkle.checkTouching(i);
+        //}
+    }
+  
+    MusicNote lastNote = displaySong[displaySong.length - 1];
+      int noteEndX = lastNote.getXNote();
+      
+      if (noteEndX <= 400 && noteCounter < instanceArray.length) {
+        addNotes(noteCounter);
+        noteCounter++;
+      }
+      
+   if(noteCounter==instanceArray.length && noteEndX==1000){
+      state.page=7;
+    }
+  }
+
+
+  void addNotes(int noteNumber) {
+    displaySong.push(instanceArray[noteNumber]);
+    //Twinkle.checkTouching();
+  }    
+
+void hideNote(int i) {
+        displaySong[i].xPos=1000;
+        displaySong[i].yPos=1000;
+    }
+    
+void checkTouching(int note){
+
+        console.log("hey!");
+    
+        if (abs(player.xPos-displaySong[note].xPos)<=50){
+            if (abs(player.yPos-displaySong[note].yPos)<=125){
+                
+                hideNote(note);
+                displaySong[note].sound.play();
+                score+=10;
+                console.log(score);
+            }
+            
+        } else if (displaySong[note].xPos<=100){
+                hideNote(note);
+        }
+    
+    }
+    
+int checkSongLength(){
+
+    return letterArray.length;
+
+}
+    
+}
+
+
+
+class Player{
+    int xPos;
+    int yPos;
+    
+    Player(int x, int y){
+        xPos=x;
+        yPos=y;
+        }
+        
+//calls draw each time and sets frame rate so that it looks like its moving
+void manCostume(){
+  if (man==0){
+    image(man0, xPos, yPos);
+    man=1;
+  }
+  else if (man==1){
+    image(man1,xPos,yPos);
+    man=2;
+  }
+  else if (man==2){
+     image(man2, xPos,yPos);
+    man=3;
+  }
+  else if (man==3){
+     image(man3, xPos, yPos);
+    man=4;
+  }
+    else if (man==4){
+       image(man4,xPos,yPos);
+      man=1;
+    }
+  }
+
+// allows man to jump and fall like real life by creating gravity and velocity
+  void jump(){
+    yPos += yVel;
+    yVel +=gravity;
+    if (yPos>=400){
+      yPos=400;
+       yVel=0;
+       }
+       if(yPos<=50){
+         yPos=51;
+       }
+    drawMan();
+}
+ 
+// draws background, man , sets frame loop to loop gif
+void drawMan(){
+
+    image(man, 60, yPos);
+    
+    if (frameZero ==12){
+  
+    manCostume();
+    frameZero=10;
+  }
+  frameZero++;
+}
+
+
+
+}
+
+
+
+
+</script>
+    
+</head>
 <body>
-	<p>Hello world.</p>
+    <div class="two">
+		<div class="logo">
+			
+		
+	<img src="http://s14.postimg.org/3pdc7e80x/BTTB_LOGO2_2.png">
+			
+	</div>
+	
+			<p> Bach to the Basics</p>
+			
+		</div>
+		
+    <div align="center"> <canvas id="mycanvas"> </canvas>
+    </div>
+    <div class="us">
+			
+		
+		
+		<h1>
+			Creators
+			</h1>
+			<div class= winnie>
+				<img src="http://s18.postimg.org/7vznkg6h5/Winnie_Cartoon.png" >
+			</div>
+			
+			<div class=juliana>
+	<img src="http://s29.postimg.org/c935op6uv/Juliana_Cartoon.png">
+			</div>
+			
+			<div class=lauren>
+	<img src="http://s29.postimg.org/peinut0qf/Lauren_Cartoon.png">
+			</div>
+			
+			<div class=mariaIsabel>
+	<img src="http://s29.postimg.org/pfslo82k7/Maria_Isabel_Cartoon.png">
+			</div>
+        
+        
+	
+<h1>
+	Project Manager A.K.A. Savior
+	</h1>
+	<div class=tara>
+	<img src="http://s23.postimg.org/ih1a65o63/TARAcartoon.png">
+
+	</div>
+</div>
+	
 </body>
 </html>
