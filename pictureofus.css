@@ -27,9 +27,11 @@ img {
 	height: 100%;
 	width: 100%;
 }
-h1{
-	font-family: 'Silom', 'regular' ;
+
+body {
+	font-family: 'Share Tech', sans-serif;
 }
+
 .logo{
 	text-align: left;
 	text-align: top;
@@ -43,7 +45,6 @@ p{
 
 	text-align: center;
 	text-align: top;
-	font-family: 'Silom', 'regular' ;
 	width:90%;
 }
 
